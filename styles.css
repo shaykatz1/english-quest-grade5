@@ -285,6 +285,79 @@ h1 {
   color: #422d12;
 }
 
+.game-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.built-word {
+  min-height: 42px;
+  border: 2px dashed #b3c7dd;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+  background: #f8fcff;
+  direction: ltr;
+  text-align: left;
+}
+
+.letter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 8px;
+}
+
+.letter-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-family: inherit;
+  font-weight: 700;
+  background: #e8f1ff;
+  color: #24425f;
+  cursor: pointer;
+}
+
+.letter-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.memory-card {
+  border: none;
+  border-radius: 10px;
+  min-height: 52px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: #deecff;
+  color: #1a3858;
+}
+
+.memory-card.open {
+  background: #dff8e8;
+  color: #1f9d63;
+}
+
+.typing-input {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid #b7cbe1;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
 .content-grid {
   margin-top: 14px;
   display: grid;

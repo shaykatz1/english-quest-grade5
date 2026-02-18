@@ -841,29 +841,29 @@ const progressFill = document.getElementById("progressFill");
 const completedCountLabel = document.getElementById("completedCountLabel");
 const remainingCountLabel = document.getElementById("remainingCountLabel");
 const stageMap = document.getElementById("stageMap");
-const gamesCatalog = document.getElementById("gamesCatalog");
-const gameArena = document.getElementById("gameArena");
+const realGamesCatalog = document.getElementById("realGamesCatalog");
+const realGameArena = document.getElementById("realGameArena");
 const shareHint = document.getElementById("shareHint");
 const stageContainer = document.getElementById("stageContainer");
 const resetBtn = document.getElementById("resetBtn");
 const shareBtn = document.getElementById("shareBtn");
 
-const learningGames = buildLearningGames();
+const realGames = buildRealGames();
 
 let state = loadState();
 let pendingAnswer = null;
-const gameState = {
-  activeGameId: learningGames[0]?.id || null,
+const realGameState = {
+  activeGameId: realGames[0]?.id || null,
   round: 1,
   score: 0,
-  challenge: null,
   locked: false,
   bestScores: loadGameScores(),
+  challenge: null,
 };
 
 totalStagesLabel.textContent = String(stages.length);
 render();
-initGameCenter();
+initRealGames();
 
 resetBtn.addEventListener("click", () => {
   state = createInitialState();
@@ -895,308 +895,278 @@ shareBtn.addEventListener("click", async () => {
   openWhatsAppWithText(waText);
 });
 
-function buildLearningGames() {
-  const vocabPairs = [
-    ["כלב", "dog"], ["חתול", "cat"], ["מחברת", "notebook"], ["חלון", "window"], ["שולחן", "table"],
-    ["כיסא", "chair"], ["מים", "water"], ["תיק", "bag"], ["מורה", "teacher"], ["משפחה", "family"],
-  ];
-  const opposites = [["big", "small"], ["hot", "cold"], ["happy", "sad"], ["fast", "slow"], ["clean", "dirty"], ["long", "short"]];
-  const prepositions = [
-    ["The book is ___ the table.", "on", ["on", "under", "between", "behind"]],
-    ["The cat is ___ the chair.", "under", ["on", "under", "behind", "near"]],
-    ["The ball is ___ the box.", "in", ["in", "on", "under", "by"]],
-  ];
-  const questionsWords = [["___ is your name?", "What"], ["___ do you live?", "Where"], ["___ old are you?", "How"], ["___ is your teacher?", "Who"]];
-  const pastVerbs = [["go", "went"], ["eat", "ate"], ["write", "wrote"], ["see", "saw"], ["buy", "bought"], ["swim", "swam"]];
-  const contractions = [["I am", "I'm"], ["You are", "You're"], ["He is", "He's"], ["We are", "We're"], ["Do not", "Don't"], ["Can not", "Can't"]];
-  const spellingWords = [["becose", "because"], ["freind", "friend"], ["langauge", "language"], ["diffrent", "different"], ["scool", "school"], ["beatiful", "beautiful"]];
-  const comparatives = [["big", "bigger"], ["small", "smaller"], ["hot", "hotter"], ["easy", "easier"], ["fast", "faster"], ["young", "younger"]];
-
+function buildRealGames() {
   return [
-    {
-      id: "vocab-quick",
-      title: "מה התרגום?",
-      topic: "Vocabulary",
-      buildChallenge: () => {
-        const [he, answer] = pickRandom(vocabPairs);
-        return {
-          prompt: `בחר את התרגום באנגלית: "${he}"`,
-          answer,
-          options: createOptions(answer, vocabPairs.map((pair) => pair[1])),
-          explanation: `"${he}" באנגלית זה "${answer}".`,
-        };
-      },
-    },
-    {
-      id: "opposites-race",
-      title: "מילים הפוכות",
-      topic: "Vocabulary",
-      buildChallenge: () => {
-        const [word, answer] = pickRandom(opposites);
-        return {
-          prompt: `What is the opposite of "${word}"?`,
-          answer,
-          options: createOptions(answer, opposites.map((pair) => pair[1])),
-          explanation: `The opposite of "${word}" is "${answer}".`,
-        };
-      },
-    },
-    {
-      id: "prep-master",
-      title: "מילות יחס",
-      topic: "Grammar",
-      buildChallenge: () => {
-        const [prompt, answer, options] = pickRandom(prepositions);
-        return { prompt, answer, options: shuffleRandom(options), explanation: `The correct preposition is "${answer}".` };
-      },
-    },
-    {
-      id: "question-word",
-      title: "מילות שאלה",
-      topic: "Grammar",
-      buildChallenge: () => {
-        const [prompt, answer] = pickRandom(questionsWords);
-        return { prompt, answer, options: createOptions(answer, ["What", "Where", "When", "Who", "How", "Why"]), explanation: `The right question word is "${answer}".` };
-      },
-    },
-    {
-      id: "past-tense",
-      title: "עבר פשוט",
-      topic: "Tenses",
-      buildChallenge: () => {
-        const [base, answer] = pickRandom(pastVerbs);
-        return {
-          prompt: `Choose the past form of "${base}".`,
-          answer,
-          options: createOptions(answer, [...pastVerbs.map((pair) => pair[1]), `${base}ed`, `${base}s`]),
-          explanation: `Past form of "${base}" is "${answer}".`,
-        };
-      },
-    },
-    {
-      id: "contractions",
-      title: "קיצורי מילים",
-      topic: "Grammar",
-      buildChallenge: () => {
-        const [full, answer] = pickRandom(contractions);
-        return {
-          prompt: `Choose the contraction of "${full}".`,
-          answer,
-          options: createOptions(answer, [...contractions.map((pair) => pair[1]), full]),
-          explanation: `"${full}" becomes "${answer}".`,
-        };
-      },
-    },
-    {
-      id: "spelling-fix",
-      title: "תיקון כתיב",
-      topic: "Spelling",
-      buildChallenge: () => {
-        const [wrong, answer] = pickRandom(spellingWords);
-        return {
-          prompt: `Choose the correct spelling for: "${wrong}"`,
-          answer,
-          options: createOptions(answer, [...spellingWords.map((pair) => pair[1]), wrong]),
-          explanation: `Correct spelling: "${answer}".`,
-        };
-      },
-    },
-    {
-      id: "punctuation-check",
-      title: "פיסוק נכון",
-      topic: "Writing",
-      buildChallenge: () => {
-        const sets = [
-          ["Which sentence is correct?", "Where are you going?", ["Where are you going.", "where are you going?", "Where are you going?", "Where are you going!"]],
-          ["Which sentence is correct?", "I like apples, bananas, and grapes.", ["I like apples bananas and grapes.", "I like apples, bananas, and grapes.", "I like apples bananas, and grapes.", "I like apples bananas and, grapes."]],
-          ["Which sentence is correct?", "My name is Noa.", ["my name is noa.", "My name is Noa.", "My name is noa.", "my name is Noa."]],
-        ];
-        const [prompt, answer, options] = pickRandom(sets);
-        return { prompt, answer, options: shuffleRandom(options), explanation: `Correct sentence: "${answer}".` };
-      },
-    },
-    {
-      id: "can-cant",
-      title: "Can / Can't",
-      topic: "Grammar",
-      buildChallenge: () => {
-        const sets = [
-          ["Birds ___ fly.", "can", ["can", "can't", "should", "are"]],
-          ["Fish ___ walk on land.", "can't", ["can", "can't", "should", "are"]],
-          ["You ___ use your phone in class.", "can't", ["can", "can't", "am", "is"]],
-        ];
-        const [prompt, answer, options] = pickRandom(sets);
-        return { prompt, answer, options: shuffleRandom(options), explanation: `The right modal is "${answer}".` };
-      },
-    },
-    {
-      id: "should-shouldnt",
-      title: "Should / Shouldn't",
-      topic: "Grammar",
-      buildChallenge: () => {
-        const sets = [
-          ["You have a test tomorrow. You ___ study tonight.", "should", ["should", "shouldn't", "can", "can't"]],
-          ["If your friend is sad, you ___ laugh at him.", "shouldn't", ["should", "shouldn't", "can", "can't"]],
-          ["Before crossing the road, you ___ look both ways.", "should", ["should", "shouldn't", "is", "are"]],
-        ];
-        const [prompt, answer, options] = pickRandom(sets);
-        return { prompt, answer, options: shuffleRandom(options), explanation: `"${answer}" is correct in this situation.` };
-      },
-    },
-    {
-      id: "comparatives",
-      title: "השוואות",
-      topic: "Grammar",
-      buildChallenge: () => {
-        const [base, answer] = pickRandom(comparatives);
-        return {
-          prompt: `Choose the comparative form of "${base}".`,
-          answer,
-          options: createOptions(answer, comparatives.map((pair) => pair[1])),
-          explanation: `Comparative of "${base}" is "${answer}".`,
-        };
-      },
-    },
-    {
-      id: "reading-fast",
-      title: "קריאה מהירה",
-      topic: "Reading",
-      buildChallenge: () => {
-        const sets = [
-          ["Dana has a red bag. What color is Dana's bag?", "Red", ["Blue", "Red", "Green", "Black"]],
-          ["Tom has two cats and one dog. How many pets does he have?", "3", ["2", "3", "4", "5"]],
-          ["The class starts at 8:00. Is 7:30 before class?", "Yes", ["Yes", "No", "Maybe", "Unknown"]],
-        ];
-        const [prompt, answer, options] = pickRandom(sets);
-        return { prompt, answer, options: shuffleRandom(options), explanation: `Correct answer: ${answer}.` };
-      },
-    },
+    { id: "wb-animals", title: "בניית מילים: חיות", topic: "Word Builder", type: "word_builder", data: [["dog", "כלב"], ["cat", "חתול"], ["lion", "אריה"], ["tiger", "נמר"], ["horse", "סוס"], ["monkey", "קוף"]] },
+    { id: "wb-school", title: "בניית מילים: בית ספר", topic: "Word Builder", type: "word_builder", data: [["school", "בית ספר"], ["teacher", "מורה"], ["pencil", "עיפרון"], ["notebook", "מחברת"], ["eraser", "מחק"], ["classroom", "כיתה"]] },
+    { id: "wb-food", title: "בניית מילים: אוכל", topic: "Word Builder", type: "word_builder", data: [["apple", "תפוח"], ["banana", "בננה"], ["bread", "לחם"], ["cheese", "גבינה"], ["salad", "סלט"], ["orange", "תפוז"]] },
+    { id: "mem-basic", title: "זיכרון: מילים בסיסיות", topic: "Memory", type: "memory", data: [["sun", "שמש"], ["moon", "ירח"], ["water", "מים"], ["book", "ספר"], ["door", "דלת"], ["chair", "כיסא"]] },
+    { id: "mem-house", title: "זיכרון: הבית", topic: "Memory", type: "memory", data: [["kitchen", "מטבח"], ["window", "חלון"], ["table", "שולחן"], ["bed", "מיטה"], ["room", "חדר"], ["garden", "גינה"]] },
+    { id: "mem-time", title: "זיכרון: זמן", topic: "Memory", type: "memory", data: [["morning", "בוקר"], ["evening", "ערב"], ["night", "לילה"], ["week", "שבוע"], ["month", "חודש"], ["year", "שנה"]] },
+    { id: "sent-present", title: "סידור משפט: הווה", topic: "Sentence Builder", type: "sentence_builder", data: ["I go to school every day.", "She plays with her friends.", "They read books in class.", "We eat lunch at noon.", "He writes in his notebook."] },
+    { id: "sent-questions", title: "סידור משפט: שאלות", topic: "Sentence Builder", type: "sentence_builder", data: ["Where do you live?", "What is your name?", "When do you study English?", "Why are you happy today?", "How do you come to school?"] },
+    { id: "type-verbs", title: "הקלדה מהירה: פעלים", topic: "Typing", type: "typing", data: [["ללכת", "go"], ["לאכול", "eat"], ["לקרוא", "read"], ["לכתוב", "write"], ["לשחק", "play"], ["לשתות", "drink"]] },
+    { id: "type-past", title: "הקלדה מהירה: עבר", topic: "Typing", type: "typing", data: [["go (past)", "went"], ["eat (past)", "ate"], ["write (past)", "wrote"], ["buy (past)", "bought"], ["swim (past)", "swam"], ["come (past)", "came"]] },
+    { id: "vowel-challenge", title: "חסר תנועות", topic: "Spelling", type: "vowel_fill", data: [["appl_", "apple"], ["hous_", "house"], ["tabl_", "table"], ["fri_nd", "friend"], ["stud_nt", "student"], ["writ_", "write"]] },
+    { id: "mixed-challenge", title: "אתגר מעורב", topic: "Mixed", type: "mixed", data: [] },
   ];
 }
 
-function initGameCenter() {
-  if (!gamesCatalog || !gameArena || !learningGames.length) return;
-  renderGamesCatalog();
-  startGame(learningGames[0].id);
+function initRealGames() {
+  if (!realGamesCatalog || !realGameArena || !realGames.length) return;
+  renderRealGamesCatalog();
+  startRealGame(realGames[0].id);
 }
 
-function renderGamesCatalog() {
-  gamesCatalog.innerHTML = learningGames
+function renderRealGamesCatalog() {
+  realGamesCatalog.innerHTML = realGames
     .map((game) => {
-      const activeClass = game.id === gameState.activeGameId ? "active" : "";
-      const best = gameState.bestScores[game.id] || 0;
-      return `<button type="button" class="game-card-btn ${activeClass}" data-game-id="${game.id}"><span class="game-card-title">${escapeHtml(game.title)}</span><span class="game-card-topic">${escapeHtml(game.topic)} | שיא: ${best}/${GAME_ROUNDS}</span></button>`;
+      const activeClass = game.id === realGameState.activeGameId ? "active" : "";
+      const best = realGameState.bestScores[game.id] || 0;
+      return `<button type="button" class="game-card-btn ${activeClass}" data-game-id="${game.id}"><span class="game-card-title">${escapeHtml(game.title)}</span><span class="game-card-topic">${escapeHtml(game.topic)} | שיא: ${best}</span></button>`;
     })
     .join("");
 
-  gamesCatalog.querySelectorAll(".game-card-btn").forEach((button) => {
+  realGamesCatalog.querySelectorAll(".game-card-btn").forEach((button) => {
     button.addEventListener("click", () => {
       const gameId = button.dataset.gameId;
       if (!gameId) return;
-      startGame(gameId);
+      startRealGame(gameId);
     });
   });
 }
 
-function startGame(gameId) {
-  const game = learningGames.find((item) => item.id === gameId);
+function startRealGame(gameId) {
+  const game = realGames.find((item) => item.id === gameId);
   if (!game) return;
-
-  gameState.activeGameId = gameId;
-  gameState.round = 1;
-  gameState.score = 0;
-  gameState.challenge = game.buildChallenge();
-  gameState.locked = false;
-
-  renderGamesCatalog();
-  renderGameRound();
+  realGameState.activeGameId = gameId;
+  realGameState.round = 1;
+  realGameState.score = 0;
+  realGameState.locked = false;
+  realGameState.challenge = buildRealGameChallenge(game);
+  renderRealGamesCatalog();
+  renderRealGame();
 }
 
-function renderGameRound() {
-  const game = learningGames.find((item) => item.id === gameState.activeGameId);
-  if (!game || !gameState.challenge) return;
-
-  const challenge = gameState.challenge;
-  const best = gameState.bestScores[game.id] || 0;
-  gameArena.innerHTML = `
-    <div class="game-top-row">
-      <span>${escapeHtml(game.title)}</span>
-      <span>סיבוב: ${gameState.round}/${GAME_ROUNDS}</span>
-      <span>ניקוד: ${gameState.score}</span>
-      <span>שיא: ${best}</span>
-    </div>
-    <p class="game-question">${renderBiDiText(challenge.prompt)}</p>
-    <div class="game-options">
-      ${challenge.options
-        .map((option, index) => `<button type="button" class="game-option-btn" data-option-index="${index}">${renderBiDiText(option)}</button>`)
-        .join("")}
-    </div>
-    <p id="gameFeedback" class="game-feedback"></p>
-  `;
-
-  const buttons = gameArena.querySelectorAll(".game-option-btn");
-  const feedback = document.getElementById("gameFeedback");
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (gameState.locked) return;
-      gameState.locked = true;
-
-      const picked = challenge.options[Number(button.dataset.optionIndex)];
-      const correct = picked === challenge.answer;
-
-      buttons.forEach((btn) => {
-        btn.disabled = true;
-        const option = challenge.options[Number(btn.dataset.optionIndex)];
-        if (option === challenge.answer) btn.classList.add("correct");
-      });
-      if (!correct) button.classList.add("wrong");
-
-      if (correct) {
-        gameState.score += 1;
-        feedback.innerHTML = `נכון! ${renderBiDiText(challenge.explanation)}`;
-      } else {
-        feedback.innerHTML = `לא נכון. התשובה היא ${renderBiDiText(challenge.answer)}. ${renderBiDiText(challenge.explanation)}`;
-      }
-
-      const nextBtn = document.createElement("button");
-      nextBtn.type = "button";
-      nextBtn.className = "game-next-btn";
-      nextBtn.textContent = gameState.round === GAME_ROUNDS ? "סיום משחק" : "לסיבוב הבא";
-      nextBtn.addEventListener("click", () => {
-        if (gameState.round === GAME_ROUNDS) {
-          finishGame();
-          return;
-        }
-        gameState.round += 1;
-        gameState.challenge = game.buildChallenge();
-        gameState.locked = false;
-        renderGameRound();
-      });
-      gameArena.append(nextBtn);
-    });
-  });
+function buildRealGameChallenge(game) {
+  if (game.type === "word_builder") {
+    const [answer, clue] = pickRandom(game.data);
+    return { mode: "word_builder", clue, answer, letters: shuffleRandom(answer.toUpperCase().split("")), picked: [] };
+  }
+  if (game.type === "memory") {
+    const pairs = shuffleRandom(game.data).slice(0, 4);
+    const cards = shuffleRandom(pairs.flatMap(([en, he], idx) => [{ key: idx, text: en }, { key: idx, text: he }]));
+    return { mode: "memory", pairs, cards, open: [], matched: [] };
+  }
+  if (game.type === "sentence_builder") {
+    const answer = pickRandom(game.data);
+    return { mode: "sentence_builder", answer, words: shuffleRandom(answer.replace(/[.?]/g, "").split(" ")), picked: [] };
+  }
+  if (game.type === "typing") {
+    const [clue, answer] = pickRandom(game.data);
+    return { mode: "typing", clue, answer };
+  }
+  if (game.type === "vowel_fill") {
+    const [prompt, answer] = pickRandom(game.data);
+    return { mode: "vowel_fill", clue: prompt, answer };
+  }
+  return buildRealGameChallenge(pickRandom(realGames.filter((g) => g.type !== "mixed")));
 }
 
-function finishGame() {
-  const game = learningGames.find((item) => item.id === gameState.activeGameId);
-  if (!game) return;
+function renderRealGame() {
+  const game = realGames.find((item) => item.id === realGameState.activeGameId);
+  if (!game || !realGameState.challenge) return;
+  const best = realGameState.bestScores[game.id] || 0;
+  const challenge = realGameState.challenge;
 
-  const currentBest = gameState.bestScores[game.id] || 0;
-  if (gameState.score > currentBest) {
-    gameState.bestScores[game.id] = gameState.score;
-    persistGameScores(gameState.bestScores);
+  let body = "";
+  if (challenge.mode === "word_builder") {
+    const built = challenge.picked.join("");
+    body = `
+      <p class="game-question">רמז: ${escapeHtml(challenge.clue)} | בנו את המילה באנגלית</p>
+      <div class="built-word">${escapeHtml(built)}</div>
+      <div class="letter-grid">${challenge.letters.map((l, i) => `<button type="button" class="letter-btn" data-letter-index="${i}" ${challenge.picked.length > i ? "disabled" : ""}>${l}</button>`).join("")}</div>
+      <div class="game-actions"><button type="button" class="game-next-btn" id="checkWordBtn">בדיקה</button><button type="button" class="ghost-btn" id="clearWordBtn">ניקוי</button></div>
+      <p class="game-feedback" id="realGameFeedback"></p>
+    `;
+  }
+  if (challenge.mode === "memory") {
+    body = `
+      <p class="game-question">מצאו זוגות מתאימים (אנגלית + עברית)</p>
+      <div class="memory-grid">${challenge.cards.map((card, idx) => {
+        const isOpen = challenge.open.includes(idx) || challenge.matched.includes(card.key);
+        return `<button type="button" class="memory-card ${isOpen ? "open" : ""}" data-card-index="${idx}">${isOpen ? escapeHtml(card.text) : "?"}</button>`;
+      }).join("")}</div>
+      <p class="game-feedback" id="realGameFeedback"></p>
+    `;
+  }
+  if (challenge.mode === "sentence_builder") {
+    body = `
+      <p class="game-question">סדרו את המילים למשפט נכון</p>
+      <div class="built-word">${escapeHtml(challenge.picked.join(" "))}</div>
+      <div class="letter-grid">${challenge.words.map((w, i) => `<button type="button" class="letter-btn" data-word-index="${i}" ${challenge.picked.includes(w) ? "disabled" : ""}>${escapeHtml(w)}</button>`).join("")}</div>
+      <div class="game-actions"><button type="button" class="game-next-btn" id="checkSentenceBtn">בדיקה</button><button type="button" class="ghost-btn" id="clearSentenceBtn">ניקוי</button></div>
+      <p class="game-feedback" id="realGameFeedback"></p>
+    `;
+  }
+  if (challenge.mode === "typing" || challenge.mode === "vowel_fill") {
+    body = `
+      <p class="game-question">הקלידו את התשובה הנכונה: ${escapeHtml(challenge.clue)}</p>
+      <input id="typingInput" class="typing-input" type="text" dir="ltr" autocomplete="off" />
+      <div class="game-actions"><button type="button" class="game-next-btn" id="checkTypingBtn">בדיקה</button></div>
+      <p class="game-feedback" id="realGameFeedback"></p>
+    `;
   }
 
-  renderGamesCatalog();
-  gameArena.innerHTML = `
+  realGameArena.innerHTML = `
+    <div class="game-top-row"><span>${escapeHtml(game.title)}</span><span>סיבוב: ${realGameState.round}/${GAME_ROUNDS}</span><span>ניקוד: ${realGameState.score}</span><span>שיא: ${best}</span></div>
+    ${body}
+  `;
+
+  bindRealGameEvents(challenge, game);
+}
+
+function bindRealGameEvents(challenge, game) {
+  if (challenge.mode === "word_builder") {
+    realGameArena.querySelectorAll(".letter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.dataset.letterIndex);
+        if (Number.isNaN(idx)) return;
+        challenge.picked.push(challenge.letters[idx]);
+        renderRealGame();
+      });
+    });
+    document.getElementById("clearWordBtn")?.addEventListener("click", () => {
+      challenge.picked = [];
+      renderRealGame();
+    });
+    document.getElementById("checkWordBtn")?.addEventListener("click", () => {
+      const correct = challenge.picked.join("").toLowerCase() === challenge.answer.toLowerCase();
+      handleRealGameRoundEnd(correct, `התשובה היא "${challenge.answer}"`);
+    });
+    return;
+  }
+
+  if (challenge.mode === "memory") {
+    const feedback = document.getElementById("realGameFeedback");
+    realGameArena.querySelectorAll(".memory-card").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (realGameState.locked) return;
+        const idx = Number(btn.dataset.cardIndex);
+        if (Number.isNaN(idx)) return;
+        if (challenge.open.includes(idx)) return;
+        if (challenge.matched.includes(challenge.cards[idx].key)) return;
+        challenge.open.push(idx);
+        renderRealGame();
+        if (challenge.open.length === 2) {
+          realGameState.locked = true;
+          const [a, b] = challenge.open;
+          const match = challenge.cards[a].key === challenge.cards[b].key;
+          setTimeout(() => {
+            if (match) {
+              challenge.matched.push(challenge.cards[a].key);
+              if (feedback) feedback.textContent = "זוג נכון!";
+            } else if (feedback) {
+              feedback.textContent = "לא זוג. נסו שוב.";
+            }
+            challenge.open = [];
+            realGameState.locked = false;
+            if (challenge.matched.length >= 4) {
+              handleRealGameRoundEnd(true, "סיבוב זיכרון הושלם.");
+              return;
+            }
+            renderRealGame();
+          }, 550);
+        }
+      });
+    });
+    return;
+  }
+
+  if (challenge.mode === "sentence_builder") {
+    realGameArena.querySelectorAll(".letter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.dataset.wordIndex);
+        if (Number.isNaN(idx)) return;
+        const word = challenge.words[idx];
+        if (challenge.picked.includes(word)) return;
+        challenge.picked.push(word);
+        renderRealGame();
+      });
+    });
+    document.getElementById("clearSentenceBtn")?.addEventListener("click", () => {
+      challenge.picked = [];
+      renderRealGame();
+    });
+    document.getElementById("checkSentenceBtn")?.addEventListener("click", () => {
+      const built = `${challenge.picked.join(" ")}.`.replace("?.", "?");
+      const correct = built === challenge.answer;
+      handleRealGameRoundEnd(correct, `המשפט הנכון: ${challenge.answer}`);
+    });
+    return;
+  }
+
+  if (challenge.mode === "typing" || challenge.mode === "vowel_fill") {
+    document.getElementById("checkTypingBtn")?.addEventListener("click", () => {
+      const input = document.getElementById("typingInput");
+      if (!input) return;
+      const value = input.value.trim().toLowerCase();
+      const correct = value === challenge.answer.toLowerCase();
+      handleRealGameRoundEnd(correct, `התשובה הנכונה: ${challenge.answer}`);
+    });
+  }
+}
+
+function handleRealGameRoundEnd(correct, explanation) {
+  const feedback = document.getElementById("realGameFeedback");
+  if (feedback) feedback.innerHTML = correct ? `נכון! ${renderBiDiText(explanation)}` : `לא נכון. ${renderBiDiText(explanation)}`;
+  if (correct) realGameState.score += 1;
+
+  const goNext = () => {
+    if (realGameState.round === GAME_ROUNDS) {
+      finishRealGame();
+      return;
+    }
+    realGameState.round += 1;
+    realGameState.challenge = buildRealGameChallenge(realGames.find((g) => g.id === realGameState.activeGameId));
+    renderRealGame();
+  };
+
+  if (correct) {
+    setTimeout(goNext, 850);
+    return;
+  }
+
+  const next = document.createElement("button");
+  next.type = "button";
+  next.className = "game-next-btn";
+  next.textContent = realGameState.round === GAME_ROUNDS ? "סיום משחק" : "לסיבוב הבא";
+  next.addEventListener("click", goNext);
+  if (feedback) {
+    feedback.after(next);
+  } else {
+    realGameArena.append(next);
+  }
+}
+
+function finishRealGame() {
+  const game = realGames.find((item) => item.id === realGameState.activeGameId);
+  if (!game) return;
+  const best = realGameState.bestScores[game.id] || 0;
+  if (realGameState.score > best) {
+    realGameState.bestScores[game.id] = realGameState.score;
+    persistGameScores(realGameState.bestScores);
+  }
+  renderRealGamesCatalog();
+  realGameArena.innerHTML = `
     <div class="stage-complete">
-      <div class="success-mark">🎮</div>
+      <div class="success-mark">🎯</div>
       <h2 class="stage-title">סיימת את המשחק: ${escapeHtml(game.title)}</h2>
-      <p class="question">צברת <strong>${gameState.score}</strong> מתוך <strong>${GAME_ROUNDS}</strong></p>
-      <button type="button" class="game-next-btn" id="replayGameBtn">שחק שוב</button>
+      <p class="question">תוצאה: <strong>${realGameState.score}</strong> מתוך <strong>${GAME_ROUNDS}</strong></p>
+      <button type="button" class="game-next-btn" id="replayRealGameBtn">שחק שוב</button>
     </div>
   `;
-  document.getElementById("replayGameBtn").addEventListener("click", () => startGame(game.id));
+  document.getElementById("replayRealGameBtn")?.addEventListener("click", () => startRealGame(game.id));
 }
 
 function pickRandom(items) {
@@ -1210,12 +1180,6 @@ function shuffleRandom(items) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
-}
-
-function createOptions(answer, pool) {
-  const cleanPool = [...new Set(pool.filter((item) => item !== answer))];
-  const distractors = shuffleRandom(cleanPool).slice(0, 3);
-  return shuffleRandom([answer, ...distractors]);
 }
 
 function loadGameScores() {
@@ -1396,52 +1360,56 @@ function renderQuestion() {
       };
 
       if (correct) {
-        feedback.innerHTML = `נכון! ${renderBiDiText(question.explanation)}`;
+        feedback.innerHTML = `כל הכבוד! ${renderBiDiText(question.explanation)}`;
         feedback.className = "feedback good";
+        setTimeout(() => advanceStageQuestion(), 800);
       } else {
         feedback.innerHTML = `לא נכון. התשובה הנכונה היא ${renderBiDiText(question.answer)}. ${renderBiDiText(question.explanation)}`;
         feedback.className = "feedback bad";
+        addNextButton();
       }
-
-      addNextButton();
     });
   });
 }
 
-function addNextButton() {
-  if (stageContainer.querySelector(".next-btn")) return;
+function advanceStageQuestion() {
+  if (!pendingAnswer) return;
 
   const stage = stages[state.stageIndex];
   const questionIndex = state.stageProgress[state.stageIndex];
   const isLastQuestionInStage = questionIndex === stage.questions.length - 1;
 
+  state.answeredCount += 1;
+  state.score += pendingAnswer.points;
+
+  if (isLastQuestionInStage) {
+    state.completedStages[state.stageIndex] = true;
+    state.stageProgress[state.stageIndex] = 0;
+
+    if (state.completedStages.every(Boolean)) {
+      state.finished = true;
+    } else {
+      state.view = "stageComplete";
+    }
+  } else {
+    state.stageProgress[state.stageIndex] += 1;
+  }
+
+  pendingAnswer = null;
+  persistState();
+  render();
+}
+
+function addNextButton() {
+  if (stageContainer.querySelector(".next-btn")) return;
+
   const nextBtn = document.createElement("button");
   nextBtn.type = "button";
   nextBtn.className = "next-btn";
-  nextBtn.textContent = isLastQuestionInStage ? "סיום השלב" : "לשאלה הבאה";
+  nextBtn.textContent = "הבנתי, לשאלה הבאה";
 
   nextBtn.addEventListener("click", () => {
-    if (!pendingAnswer) return;
-
-    state.answeredCount += 1;
-    state.score += pendingAnswer.points;
-
-    if (isLastQuestionInStage) {
-      state.completedStages[state.stageIndex] = true;
-      state.stageProgress[state.stageIndex] = 0;
-
-      if (state.completedStages.every(Boolean)) {
-        state.finished = true;
-      } else {
-        state.view = "stageComplete";
-      }
-    } else {
-      state.stageProgress[state.stageIndex] += 1;
-    }
-
-    pendingAnswer = null;
-    persistState();
-    render();
+    advanceStageQuestion();
   });
 
   stageContainer.append(nextBtn);
