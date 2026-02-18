@@ -26,46 +26,70 @@
         </div>
       </header>
 
-      <section class="progress-card">
-        <div class="progress-text-row">
-          <p>שלב: <span id="stageLabel">1</span>/<span id="totalStagesLabel">20</span></p>
-          <p>שאלה בשלב: <span id="stageQuestionLabel">1</span>/<span id="stageQuestionTotalLabel">20</span></p>
-          <p>נקודות: <span id="scoreLabel">0</span></p>
-        </div>
-        <div class="progress-track" aria-label="פס התקדמות">
-          <div id="progressFill" class="progress-fill"></div>
-        </div>
-        <p id="shareHint" class="share-hint" aria-live="polite"></p>
-      </section>
-
-      <section class="content-grid">
-        <aside class="games-card stage-map-card">
-          <div class="games-head">
-            <h3 class="games-title">מפת שלבים</h3>
-          </div>
-          <p class="games-subtitle stage-map-stats">
-            הושלמו: <span id="completedCountLabel">0</span> |
-            לא הושלמו: <span id="remainingCountLabel">0</span>
-          </p>
-          <div id="stageMap" class="stage-map" aria-live="polite"></div>
-        </aside>
-      </section>
-
-      <section class="games-card">
+      <section id="homeSection" class="games-card">
         <div class="games-head">
-          <h3 class="games-title">אזור השאלות המרכזי</h3>
-          <p class="games-subtitle">כאן מתרגלים את מסלול השלבים וההתקדמות האישית.</p>
+          <h3 class="games-title">מה תרצו לעשות עכשיו?</h3>
+          <p class="games-subtitle">בחרו לימוד בשלבים או משחקי אנגלית.</p>
+        </div>
+        <div class="choice-grid">
+          <button id="goLearningBtn" class="choice-btn" type="button">לימוד</button>
+          <button id="goGamesBtn" class="choice-btn" type="button">משחקים</button>
+        </div>
+      </section>
+
+      <section id="learningMapSection" class="games-card stage-map-card hidden">
+        <div class="games-head">
+          <h3 class="games-title">מפת שלבים</h3>
+          <p class="games-subtitle">לחצו על שלב כדי להתחיל את השאלות שלו.</p>
+        </div>
+        <p class="games-subtitle stage-map-stats">
+          הושלמו: <span id="completedCountLabel">0</span> |
+          לא הושלמו: <span id="remainingCountLabel">0</span>
+        </p>
+        <div id="stageMap" class="stage-map" aria-live="polite"></div>
+        <div class="game-actions">
+          <button id="learningBackHomeBtn" class="ghost-btn" type="button">חזרה למסך ראשי</button>
+        </div>
+      </section>
+
+      <section id="learningQuestionSection" class="games-card hidden">
+        <div class="progress-card in-card">
+          <div class="progress-text-row">
+            <p>שלב: <span id="stageLabel">1</span>/<span id="totalStagesLabel">20</span></p>
+            <p>שאלה בשלב: <span id="stageQuestionLabel">1</span>/<span id="stageQuestionTotalLabel">20</span></p>
+            <p>נקודות: <span id="scoreLabel">0</span></p>
+          </div>
+          <div class="progress-track" aria-label="פס התקדמות">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <p id="shareHint" class="share-hint" aria-live="polite"></p>
         </div>
         <section id="stageContainer" class="game-arena" aria-live="polite"></section>
+        <div class="game-actions">
+          <button id="questionBackToStagesBtn" class="ghost-btn" type="button">חזרה למפת שלבים</button>
+        </div>
       </section>
 
-      <section class="games-card">
+      <section id="gamesMenuSection" class="games-card hidden">
         <div class="games-head">
           <h3 class="games-title">אזור משחקי אנגלית אמיתיים</h3>
-          <p class="games-subtitle">משחקי בניית מילים, זיכרון, השלמת משפטים והקלדה מהירה.</p>
+          <p class="games-subtitle">בחרו משחק כדי להתחיל.</p>
         </div>
+        <p id="gameStatusLabel" class="games-subtitle"></p>
         <div id="realGamesCatalog" class="games-catalog"></div>
+        <div class="game-actions">
+          <button id="gamesBackHomeBtn" class="ghost-btn" type="button">חזרה למסך ראשי</button>
+        </div>
+      </section>
+
+      <section id="gamePlaySection" class="games-card hidden">
+        <div class="games-head">
+          <h3 class="games-title">משחק פעיל</h3>
+        </div>
         <section id="realGameArena" class="game-arena" aria-live="polite"></section>
+        <div class="game-actions">
+          <button id="backToGamesMenuBtn" class="ghost-btn" type="button">חזרה לרשימת משחקים</button>
+        </div>
       </section>
 
       <footer class="footer-note">כל התקדמות נשמרת אוטומטית במחשב שלך</footer>

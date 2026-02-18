@@ -841,6 +841,18 @@ const progressFill = document.getElementById("progressFill");
 const completedCountLabel = document.getElementById("completedCountLabel");
 const remainingCountLabel = document.getElementById("remainingCountLabel");
 const stageMap = document.getElementById("stageMap");
+const homeSection = document.getElementById("homeSection");
+const learningMapSection = document.getElementById("learningMapSection");
+const learningQuestionSection = document.getElementById("learningQuestionSection");
+const gamesMenuSection = document.getElementById("gamesMenuSection");
+const gamePlaySection = document.getElementById("gamePlaySection");
+const goLearningBtn = document.getElementById("goLearningBtn");
+const goGamesBtn = document.getElementById("goGamesBtn");
+const learningBackHomeBtn = document.getElementById("learningBackHomeBtn");
+const questionBackToStagesBtn = document.getElementById("questionBackToStagesBtn");
+const gamesBackHomeBtn = document.getElementById("gamesBackHomeBtn");
+const backToGamesMenuBtn = document.getElementById("backToGamesMenuBtn");
+const gameStatusLabel = document.getElementById("gameStatusLabel");
 const realGamesCatalog = document.getElementById("realGamesCatalog");
 const realGameArena = document.getElementById("realGameArena");
 const shareHint = document.getElementById("shareHint");
@@ -860,10 +872,38 @@ const realGameState = {
   bestScores: loadGameScores(),
   challenge: null,
 };
+let uiMode = "home";
 
 totalStagesLabel.textContent = String(stages.length);
 render();
 initRealGames();
+setUIMode("home");
+
+goLearningBtn?.addEventListener("click", () => {
+  setUIMode("learning-map");
+  render();
+});
+
+goGamesBtn?.addEventListener("click", () => {
+  setUIMode("games-menu");
+});
+
+learningBackHomeBtn?.addEventListener("click", () => {
+  setUIMode("home");
+});
+
+questionBackToStagesBtn?.addEventListener("click", () => {
+  setUIMode("learning-map");
+  render();
+});
+
+gamesBackHomeBtn?.addEventListener("click", () => {
+  setUIMode("home");
+});
+
+backToGamesMenuBtn?.addEventListener("click", () => {
+  setUIMode("games-menu");
+});
 
 resetBtn.addEventListener("click", () => {
   state = createInitialState();
@@ -915,7 +955,7 @@ function buildRealGames() {
 function initRealGames() {
   if (!realGamesCatalog || !realGameArena || !realGames.length) return;
   renderRealGamesCatalog();
-  startRealGame(realGames[0].id);
+  realGameArena.innerHTML = `<p class="games-subtitle">בחרו משחק מרשימת המשחקים כדי להתחיל.</p>`;
 }
 
 function renderRealGamesCatalog() {
@@ -939,12 +979,14 @@ function renderRealGamesCatalog() {
 function startRealGame(gameId) {
   const game = realGames.find((item) => item.id === gameId);
   if (!game) return;
+  if (gameStatusLabel) gameStatusLabel.textContent = "";
   realGameState.activeGameId = gameId;
   realGameState.round = 1;
   realGameState.score = 0;
   realGameState.locked = false;
   realGameState.challenge = buildRealGameChallenge(game);
   renderRealGamesCatalog();
+  setUIMode("games-play");
   renderRealGame();
 }
 
@@ -1168,15 +1210,11 @@ function finishRealGame() {
     persistGameScores(realGameState.bestScores);
   }
   renderRealGamesCatalog();
-  realGameArena.innerHTML = `
-    <div class="stage-complete">
-      <div class="success-mark">🎯</div>
-      <h2 class="stage-title">סיימת את המשחק: ${escapeHtml(game.title)}</h2>
-      <p class="question">תוצאה: <strong>${realGameState.score}</strong> מתוך <strong>${GAME_ROUNDS}</strong></p>
-      <button type="button" class="game-next-btn" id="replayRealGameBtn">שחק שוב</button>
-    </div>
-  `;
-  document.getElementById("replayRealGameBtn")?.addEventListener("click", () => startRealGame(game.id));
+  if (gameStatusLabel) {
+    gameStatusLabel.innerHTML = `סיימת את <strong>${escapeHtml(game.title)}</strong>: ${realGameState.score}/${GAME_ROUNDS}`;
+  }
+  realGameArena.innerHTML = `<p class="games-subtitle">בחרו משחק מרשימת המשחקים כדי להתחיל.</p>`;
+  setUIMode("games-menu");
 }
 
 function pickRandom(items) {
@@ -1303,11 +1341,27 @@ function openWhatsAppWithText(text) {
   }, 700);
 }
 
+function setUIMode(mode) {
+  uiMode = mode;
+  homeSection?.classList.toggle("hidden", mode !== "home");
+  learningMapSection?.classList.toggle("hidden", mode !== "learning-map");
+  learningQuestionSection?.classList.toggle("hidden", mode !== "learning-question");
+  gamesMenuSection?.classList.toggle("hidden", mode !== "games-menu");
+  gamePlaySection?.classList.toggle("hidden", mode !== "games-play");
+}
+
 function render() {
+  if (uiMode === "home" || uiMode === "games-menu" || uiMode === "games-play") {
+    renderStageMap();
+    return;
+  }
+
   renderStageMap();
 
   if (state.finished) {
-    renderFinal();
+    if (uiMode === "learning-question") {
+      renderFinal();
+    }
     return;
   }
 
@@ -1319,8 +1373,7 @@ function render() {
   scoreLabel.textContent = String(state.score);
   progressFill.style.width = `${Math.min(100, (state.answeredCount / totalQuestions) * 100)}%`;
 
-  if (state.view === "stageComplete") {
-    renderStageComplete();
+  if (uiMode !== "learning-question") {
     return;
   }
 
@@ -1402,8 +1455,9 @@ function advanceStageQuestion() {
 
     if (state.completedStages.every(Boolean)) {
       state.finished = true;
+      setUIMode("learning-map");
     } else {
-      state.view = "stageComplete";
+      setUIMode("learning-map");
     }
   } else {
     state.stageProgress[state.stageIndex] += 1;
@@ -1515,8 +1569,9 @@ function renderStageMap() {
 function jumpToStage(index) {
   if (index < 0 || index >= stages.length) return;
   state.stageIndex = index;
-  state.view = state.completedStages[index] ? "stageComplete" : "question";
+  state.view = "question";
   state.finished = false;
+  setUIMode("learning-question");
   persistState();
   render();
 }
