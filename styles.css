@@ -360,27 +360,15 @@ h1 {
 
 .content-grid {
   margin-top: 14px;
-  display: grid;
-  grid-template-columns: 290px 1fr;
-  gap: 14px;
+  display: block;
 }
 
-.sidebar-card {
-  min-height: 290px;
-  max-height: 70vh;
-  overflow: auto;
+.stage-map-card {
+  margin-top: 0;
 }
 
-.sidebar-title {
-  margin: 0 0 8px;
-  font-family: "Baloo 2", cursive;
-  font-size: 1.5rem;
-}
-
-.sidebar-stats {
+.stage-map-stats {
   margin: 0 0 12px;
-  font-weight: 700;
-  font-size: 0.95rem;
 }
 
 .stage-map {
@@ -389,10 +377,10 @@ h1 {
 }
 
 .topic-group {
-  border: 1px solid rgba(35, 57, 91, 0.15);
-  border-radius: 12px;
+  border: 1px solid rgba(35, 57, 91, 0.2);
+  border-radius: 14px;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.7);
+  background: #fcfeff;
 }
 
 .topic-title {
@@ -407,28 +395,21 @@ h1 {
   gap: 6px;
 }
 
-.stage-jump-btn {
-  border: none;
-  border-radius: 10px;
-  padding: 8px;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: right;
+.stage-map-btn {
+  width: 100%;
 }
 
-.stage-jump-btn.done {
+.stage-map-btn.done {
   background: #dff8e8;
   color: #1f9d63;
 }
 
-.stage-jump-btn.todo {
+.stage-map-btn.todo {
   background: #ffe8dc;
   color: #ae4c1a;
 }
 
-.stage-jump-btn.current {
+.stage-map-btn.current {
   outline: 2px solid #2b6cb0;
 }
 
@@ -579,15 +560,6 @@ h1 {
 
   .share-btn {
     width: 100%;
-  }
-
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stage-card,
-  .sidebar-card {
-    min-height: 340px;
   }
 
   .games-catalog {

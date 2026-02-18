@@ -951,7 +951,14 @@ function startRealGame(gameId) {
 function buildRealGameChallenge(game) {
   if (game.type === "word_builder") {
     const [answer, clue] = pickRandom(game.data);
-    return { mode: "word_builder", clue, answer, letters: shuffleRandom(answer.toUpperCase().split("")), picked: [] };
+    return {
+      mode: "word_builder",
+      clue,
+      answer,
+      letters: shuffleRandom(answer.toUpperCase().split("")),
+      picked: [],
+      usedIndices: [],
+    };
   }
   if (game.type === "memory") {
     const pairs = shuffleRandom(game.data).slice(0, 4);
@@ -985,7 +992,7 @@ function renderRealGame() {
     body = `
       <p class="game-question">רמז: ${escapeHtml(challenge.clue)} | בנו את המילה באנגלית</p>
       <div class="built-word">${escapeHtml(built)}</div>
-      <div class="letter-grid">${challenge.letters.map((l, i) => `<button type="button" class="letter-btn" data-letter-index="${i}" ${challenge.picked.length > i ? "disabled" : ""}>${l}</button>`).join("")}</div>
+      <div class="letter-grid">${challenge.letters.map((l, i) => `<button type="button" class="letter-btn" data-letter-index="${i}" ${challenge.usedIndices.includes(i) ? "disabled" : ""}>${l}</button>`).join("")}</div>
       <div class="game-actions"><button type="button" class="game-next-btn" id="checkWordBtn">בדיקה</button><button type="button" class="ghost-btn" id="clearWordBtn">ניקוי</button></div>
       <p class="game-feedback" id="realGameFeedback"></p>
     `;
@@ -1032,12 +1039,15 @@ function bindRealGameEvents(challenge, game) {
       btn.addEventListener("click", () => {
         const idx = Number(btn.dataset.letterIndex);
         if (Number.isNaN(idx)) return;
+        if (challenge.usedIndices.includes(idx)) return;
+        challenge.usedIndices.push(idx);
         challenge.picked.push(challenge.letters[idx]);
         renderRealGame();
       });
     });
     document.getElementById("clearWordBtn")?.addEventListener("click", () => {
       challenge.picked = [];
+      challenge.usedIndices = [];
       renderRealGame();
     });
     document.getElementById("checkWordBtn")?.addEventListener("click", () => {
@@ -1486,14 +1496,14 @@ function renderStageMap() {
           const statusClass = isDone ? "done" : "todo";
           const currentClass = isCurrent ? "current" : "";
           const statusText = isDone ? "הושלם" : "לא הושלם";
-          return `<button type="button" class="stage-jump-btn ${statusClass} ${currentClass}" data-stage-index="${stage.index}">שלב ${stage.index + 1}: ${statusText}</button>`;
+          return `<button type="button" class="game-card-btn stage-map-btn ${statusClass} ${currentClass}" data-stage-index="${stage.index}"><span class="game-card-title">שלב ${stage.index + 1}</span><span class="game-card-topic">${statusText}</span></button>`;
         })
         .join("");
       return `<div class="topic-group"><p class="topic-title">${escapeHtml(topic)}</p><div class="topic-stages">${stageButtons}</div></div>`;
     })
     .join("");
 
-  stageMap.querySelectorAll(".stage-jump-btn").forEach((button) => {
+  stageMap.querySelectorAll(".stage-map-btn").forEach((button) => {
     button.addEventListener("click", () => {
       const nextIndex = Number(button.dataset.stageIndex);
       if (Number.isNaN(nextIndex)) return;
