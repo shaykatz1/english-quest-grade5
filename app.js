@@ -483,6 +483,7 @@ const stageQuestionLabel = document.getElementById("stageQuestionLabel");
 const stageQuestionTotalLabel = document.getElementById("stageQuestionTotalLabel");
 const scoreLabel = document.getElementById("scoreLabel");
 const progressFill = document.getElementById("progressFill");
+const shareHint = document.getElementById("shareHint");
 const stageContainer = document.getElementById("stageContainer");
 const resetBtn = document.getElementById("resetBtn");
 const shareBtn = document.getElementById("shareBtn");
@@ -505,33 +506,22 @@ shareBtn.addEventListener("click", async () => {
   const shareText = state.finished
     ? `סיימתי את כל ${stages.length} השלבים ב-English Quest עם ${state.score} נקודות!`
     : `הגעתי לשלב ${stageReached} מתוך ${stages.length} ב-English Quest וצברתי ${state.score} נקודות!`;
+  const waText = `${shareText} קישור למשחק: ${window.location.href}`;
 
   try {
     const blob = await createProgressImageBlob(stageReached, state.score);
-    const file = new File([blob], "english-quest-progress.png", { type: "image/png" });
-
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        title: "English Quest Progress",
-        text: `${shareText}\n${window.location.href}`,
-        files: [file],
-      });
-      return;
-    }
-
     const fileUrl = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
     downloadLink.href = fileUrl;
     downloadLink.download = "english-quest-progress.png";
     downloadLink.click();
     URL.revokeObjectURL(fileUrl);
-
-    const waText = `${shareText}\n${window.location.href}\n(התמונה נשמרה - אפשר לצרף אותה לוואטסאפ)`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, "_blank", "noopener");
+    showShareHint("וואטסאפ נפתח עם טקסט מוכן. התמונה נשמרה - צרפו אותה להודעה.");
   } catch {
-    const waText = `${shareText}\n${window.location.href}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, "_blank", "noopener");
+    showShareHint("וואטסאפ נפתח עם טקסט מוכן.");
   }
+
+  openWhatsAppWithText(waText);
 });
 
 function createInitialState() {
@@ -602,6 +592,23 @@ function renderBiDiText(text) {
     return `<span class="ltr-text" dir="ltr">${safe}</span>`;
   }
   return `<span class="rtl-text" dir="rtl">${safe}</span>`;
+}
+
+function showShareHint(message) {
+  if (shareHint) shareHint.textContent = message;
+}
+
+function openWhatsAppWithText(text) {
+  const encoded = encodeURIComponent(text);
+  const appLink = `whatsapp://send?text=${encoded}`;
+  const webLink = `https://wa.me/?text=${encoded}`;
+
+  window.location.href = appLink;
+  setTimeout(() => {
+    if (document.visibilityState === "visible") {
+      window.location.href = webLink;
+    }
+  }, 700);
 }
 
 function render() {
