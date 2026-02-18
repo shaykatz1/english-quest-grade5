@@ -38,7 +38,17 @@
         <p id="shareHint" class="share-hint" aria-live="polite"></p>
       </section>
 
-      <section id="stageContainer" class="stage-card" aria-live="polite"></section>
+      <section class="content-grid">
+        <aside class="sidebar-card">
+          <h3 class="sidebar-title">מפת שלבים</h3>
+          <p class="sidebar-stats">
+            הושלמו: <span id="completedCountLabel">0</span> |
+            לא הושלמו: <span id="remainingCountLabel">0</span>
+          </p>
+          <div id="stageMap" class="stage-map" aria-live="polite"></div>
+        </aside>
+        <section id="stageContainer" class="stage-card" aria-live="polite"></section>
+      </section>
 
       <footer class="footer-note">כל התקדמות נשמרת אוטומטית במחשב שלך</footer>
     </main>

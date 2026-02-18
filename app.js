@@ -1,4 +1,4 @@
-const STORAGE_KEY = "englishQuestProgressV2";
+const STORAGE_KEY = "englishQuestProgressV3";
 
 function shuffleBySeed(items, seed) {
   const arr = [...items];
@@ -595,6 +595,7 @@ function buildStages() {
 
   return [
     {
+      topic: "Vocabulary Basics",
       title: "שלב 1: אוצר מילים בסיסי",
       questions: stage1Words.map((item, idx) => ({
         prompt: `בחר את התרגום לאנגלית: "${item.he}"`,
@@ -605,6 +606,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Vocabulary Basics",
       title: "שלב 2: מילים הפוכות",
       questions: stage2Opposites.map(([word, opposite], idx) => ({
         prompt: `What is the opposite of "${word}"?`,
@@ -615,6 +617,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Foundations",
       title: "שלב 3: דקדוק הווה פשוט",
       questions: stage3Grammar.map(([subject, verb], idx) => {
         const correct = subject === "He" || subject === "She" || subject === "Tom" || subject === "Dad" || subject === "Maya" || subject === "The dog" || subject === "The girl" || subject === "My brother" || subject === "My sister"
@@ -632,6 +635,7 @@ function buildStages() {
       }),
     },
     {
+      topic: "Grammar Foundations",
       title: "שלב 4: ימים, חודשים וזמנים",
       questions: stage4Time.map((item, idx) => ({
         prompt: item.prompt,
@@ -642,6 +646,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Foundations",
       title: "שלב 5: מילות יחס",
       questions: stage5Prepositions.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -652,6 +657,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Foundations",
       title: "שלב 6: מילות שאלה",
       questions: stage6Questions.map(([prompt, answer], idx) => ({
         prompt,
@@ -662,6 +668,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Sentence Skills",
       title: "שלב 7: בחר את המשפט הנכון",
       questions: stage7CorrectSentence.map(([answer, options], idx) => ({
         prompt: "Which sentence is correct?",
@@ -672,6 +679,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Sentence Skills",
       title: "שלב 8: הבנת הנקרא קצרה",
       questions: stage8Reading.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -682,6 +690,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Sentence Skills",
       title: "שלב 9: עבר פשוט",
       questions: stage9Past.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -692,6 +701,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Sentence Skills",
       title: "שלב 10: אתגר מסכם",
       questions: stage10Mixed.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -702,6 +712,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Mastery",
       title: "שלב 11: קיצורי מילים (Contractions)",
       questions: stage11Contractions.map(([fullForm, answer], idx) => ({
         prompt: `Choose the contraction of "${fullForm}".`,
@@ -715,6 +726,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Mastery",
       title: "שלב 12: כינויי גוף ושייכות",
       questions: stage12Pronouns.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -725,6 +737,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Mastery",
       title: "שלב 13: השוואות ותארים",
       questions: stage13Comparatives.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -735,6 +748,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Mastery",
       title: "שלב 14: Should / Shouldn't",
       questions: stage14Should.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -745,6 +759,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Grammar Mastery",
       title: "שלב 15: Can / Can't",
       questions: stage15CanCant.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -755,6 +770,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Advanced Literacy",
       title: "שלב 16: כתיב מתקדם",
       questions: stage16Spelling.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -765,6 +781,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Advanced Literacy",
       title: "שלב 17: פיסוק ואות גדולה",
       questions: stage17Punctuation.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -775,6 +792,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Advanced Literacy",
       title: "שלב 18: הווה ממושך",
       questions: stage18Continuous.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -785,6 +803,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Advanced Literacy",
       title: "שלב 19: תדירות",
       questions: stage19Frequency.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -795,6 +814,7 @@ function buildStages() {
       })),
     },
     {
+      topic: "Advanced Literacy",
       title: "שלב 20: סופר אתגר",
       questions: stage20Review.map(([prompt, answer, options], idx) => ({
         prompt,
@@ -816,6 +836,9 @@ const stageQuestionLabel = document.getElementById("stageQuestionLabel");
 const stageQuestionTotalLabel = document.getElementById("stageQuestionTotalLabel");
 const scoreLabel = document.getElementById("scoreLabel");
 const progressFill = document.getElementById("progressFill");
+const completedCountLabel = document.getElementById("completedCountLabel");
+const remainingCountLabel = document.getElementById("remainingCountLabel");
+const stageMap = document.getElementById("stageMap");
 const shareHint = document.getElementById("shareHint");
 const stageContainer = document.getElementById("stageContainer");
 const resetBtn = document.getElementById("resetBtn");
@@ -860,7 +883,8 @@ shareBtn.addEventListener("click", async () => {
 function createInitialState() {
   return {
     stageIndex: 0,
-    questionIndex: 0,
+    stageProgress: stages.map(() => 0),
+    completedStages: stages.map(() => false),
     answeredCount: 0,
     score: 0,
     view: "question",
@@ -878,20 +902,27 @@ function loadState() {
 
     if (
       typeof parsed.stageIndex !== "number" ||
-      typeof parsed.questionIndex !== "number" ||
       typeof parsed.answeredCount !== "number" ||
-      typeof parsed.score !== "number"
+      typeof parsed.score !== "number" ||
+      !Array.isArray(parsed.stageProgress) ||
+      !Array.isArray(parsed.completedStages)
     ) {
       return fallback;
     }
 
     if (parsed.stageIndex < 0 || parsed.stageIndex >= stages.length) return fallback;
-    if (parsed.questionIndex < 0 || parsed.questionIndex >= stages[parsed.stageIndex].questions.length) return fallback;
+    if (parsed.stageProgress.length !== stages.length || parsed.completedStages.length !== stages.length) return fallback;
+    for (let i = 0; i < stages.length; i += 1) {
+      if (typeof parsed.stageProgress[i] !== "number") return fallback;
+      if (parsed.stageProgress[i] < 0 || parsed.stageProgress[i] >= stages[i].questions.length) return fallback;
+      if (typeof parsed.completedStages[i] !== "boolean") return fallback;
+    }
     if (parsed.answeredCount < 0 || parsed.answeredCount > totalQuestions) return fallback;
 
     return {
       stageIndex: parsed.stageIndex,
-      questionIndex: parsed.questionIndex,
+      stageProgress: parsed.stageProgress,
+      completedStages: parsed.completedStages,
       answeredCount: parsed.answeredCount,
       score: parsed.score,
       view: parsed.view === "stageComplete" ? "stageComplete" : "question",
@@ -945,17 +976,20 @@ function openWhatsAppWithText(text) {
 }
 
 function render() {
+  renderStageMap();
+
   if (state.finished) {
     renderFinal();
     return;
   }
 
   const currentStage = stages[state.stageIndex];
+  const currentQuestionIndex = state.stageProgress[state.stageIndex];
   stageLabel.textContent = String(state.stageIndex + 1);
   stageQuestionTotalLabel.textContent = String(currentStage.questions.length);
-  stageQuestionLabel.textContent = String(Math.min(state.questionIndex + 1, currentStage.questions.length));
+  stageQuestionLabel.textContent = String(Math.min(currentQuestionIndex + 1, currentStage.questions.length));
   scoreLabel.textContent = String(state.score);
-  progressFill.style.width = `${(state.answeredCount / totalQuestions) * 100}%`;
+  progressFill.style.width = `${Math.min(100, (state.answeredCount / totalQuestions) * 100)}%`;
 
   if (state.view === "stageComplete") {
     renderStageComplete();
@@ -967,7 +1001,8 @@ function render() {
 
 function renderQuestion() {
   const stage = stages[state.stageIndex];
-  const question = stage.questions[state.questionIndex];
+  const questionIndex = state.stageProgress[state.stageIndex];
+  const question = stage.questions[questionIndex];
   pendingAnswer = null;
 
   stageContainer.innerHTML = `
@@ -1023,7 +1058,8 @@ function addNextButton() {
   if (stageContainer.querySelector(".next-btn")) return;
 
   const stage = stages[state.stageIndex];
-  const isLastQuestionInStage = state.questionIndex === stage.questions.length - 1;
+  const questionIndex = state.stageProgress[state.stageIndex];
+  const isLastQuestionInStage = questionIndex === stage.questions.length - 1;
 
   const nextBtn = document.createElement("button");
   nextBtn.type = "button";
@@ -1037,13 +1073,16 @@ function addNextButton() {
     state.score += pendingAnswer.points;
 
     if (isLastQuestionInStage) {
-      if (state.stageIndex === stages.length - 1) {
+      state.completedStages[state.stageIndex] = true;
+      state.stageProgress[state.stageIndex] = 0;
+
+      if (state.completedStages.every(Boolean)) {
         state.finished = true;
       } else {
         state.view = "stageComplete";
       }
     } else {
-      state.questionIndex += 1;
+      state.stageProgress[state.stageIndex] += 1;
     }
 
     pendingAnswer = null;
@@ -1063,13 +1102,19 @@ function renderStageComplete() {
       <div class="success-mark">✓</div>
       <h2 class="stage-title">סיימת את שלב ${completedStageNumber} בהצלחה!</h2>
       <p class="question">ניקוד נוכחי: <strong>${state.score}</strong> נקודות</p>
-      <button type="button" class="next-btn" id="continueStageBtn">מעבר לשלב הבא</button>
+      <button type="button" class="next-btn" id="continueStageBtn">מעבר לשלב לא הושלם הבא</button>
     </div>
   `;
 
   document.getElementById("continueStageBtn").addEventListener("click", () => {
-    state.stageIndex += 1;
-    state.questionIndex = 0;
+    const nextStage = state.completedStages.findIndex((isDone) => !isDone);
+    if (nextStage === -1) {
+      state.finished = true;
+      persistState();
+      render();
+      return;
+    }
+    state.stageIndex = nextStage;
     state.view = "question";
     persistState();
     render();
@@ -1077,6 +1122,7 @@ function renderStageComplete() {
 }
 
 function renderFinal() {
+  renderStageMap();
   stageLabel.textContent = String(stages.length);
   stageQuestionLabel.textContent = String(stages[stages.length - 1].questions.length);
   stageQuestionTotalLabel.textContent = String(stages[stages.length - 1].questions.length);
@@ -1091,6 +1137,52 @@ function renderFinal() {
       <p class="question">לחצו על "שיתוף בוואטסאפ" כדי לשתף את ההתקדמות בתמונה מעוצבת.</p>
     </div>
   `;
+}
+
+function renderStageMap() {
+  const completedCount = state.completedStages.filter(Boolean).length;
+  const remainingCount = stages.length - completedCount;
+  completedCountLabel.textContent = String(completedCount);
+  remainingCountLabel.textContent = String(remainingCount);
+
+  const byTopic = new Map();
+  stages.forEach((stage, index) => {
+    if (!byTopic.has(stage.topic)) byTopic.set(stage.topic, []);
+    byTopic.get(stage.topic).push({ ...stage, index });
+  });
+
+  stageMap.innerHTML = [...byTopic.entries()]
+    .map(([topic, topicStages]) => {
+      const stageButtons = topicStages
+        .map((stage) => {
+          const isDone = state.completedStages[stage.index];
+          const isCurrent = state.stageIndex === stage.index && !state.finished;
+          const statusClass = isDone ? "done" : "todo";
+          const currentClass = isCurrent ? "current" : "";
+          const statusText = isDone ? "הושלם" : "לא הושלם";
+          return `<button type="button" class="stage-jump-btn ${statusClass} ${currentClass}" data-stage-index="${stage.index}">שלב ${stage.index + 1}: ${statusText}</button>`;
+        })
+        .join("");
+      return `<div class="topic-group"><p class="topic-title">${escapeHtml(topic)}</p><div class="topic-stages">${stageButtons}</div></div>`;
+    })
+    .join("");
+
+  stageMap.querySelectorAll(".stage-jump-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextIndex = Number(button.dataset.stageIndex);
+      if (Number.isNaN(nextIndex)) return;
+      jumpToStage(nextIndex);
+    });
+  });
+}
+
+function jumpToStage(index) {
+  if (index < 0 || index >= stages.length) return;
+  state.stageIndex = index;
+  state.view = state.completedStages[index] ? "stageComplete" : "question";
+  state.finished = false;
+  persistState();
+  render();
 }
 
 async function createProgressImageBlob(stageReached, score) {

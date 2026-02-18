@@ -56,7 +56,8 @@ body {
 
 .top-card,
 .progress-card,
-.stage-card {
+.stage-card,
+.sidebar-card {
   background: rgba(255, 255, 255, 0.88);
   border: 2px solid rgba(35, 57, 91, 0.16);
   border-radius: 24px;
@@ -155,9 +156,82 @@ h1 {
 }
 
 .stage-card {
-  margin-top: 14px;
   min-height: 290px;
   animation: reveal 350ms ease;
+}
+
+.content-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 14px;
+}
+
+.sidebar-card {
+  min-height: 290px;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.sidebar-title {
+  margin: 0 0 8px;
+  font-family: "Baloo 2", cursive;
+  font-size: 1.5rem;
+}
+
+.sidebar-stats {
+  margin: 0 0 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.stage-map {
+  display: grid;
+  gap: 10px;
+}
+
+.topic-group {
+  border: 1px solid rgba(35, 57, 91, 0.15);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.topic-title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: #27496d;
+  font-weight: 700;
+}
+
+.topic-stages {
+  display: grid;
+  gap: 6px;
+}
+
+.stage-jump-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: right;
+}
+
+.stage-jump-btn.done {
+  background: #dff8e8;
+  color: #1f9d63;
+}
+
+.stage-jump-btn.todo {
+  background: #ffe8dc;
+  color: #ae4c1a;
+}
+
+.stage-jump-btn.current {
+  outline: 2px solid #2b6cb0;
 }
 
 .stage-title {
@@ -309,7 +383,12 @@ h1 {
     width: 100%;
   }
 
-  .stage-card {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-card,
+  .sidebar-card {
     min-height: 340px;
   }
 }
