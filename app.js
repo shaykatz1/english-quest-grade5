@@ -592,6 +592,18 @@ function escapeHtml(text) {
     .replaceAll("'", "&#39;");
 }
 
+function isMostlyEnglish(text) {
+  return /[A-Za-z]/.test(text);
+}
+
+function renderBiDiText(text) {
+  const safe = escapeHtml(text);
+  if (isMostlyEnglish(text)) {
+    return `<span class="ltr-text" dir="ltr">${safe}</span>`;
+  }
+  return `<span class="rtl-text" dir="rtl">${safe}</span>`;
+}
+
 function render() {
   if (state.finished) {
     renderFinal();
@@ -620,10 +632,13 @@ function renderQuestion() {
 
   stageContainer.innerHTML = `
     <h2 class="stage-title">${stage.title}</h2>
-    <p class="question">${escapeHtml(question.prompt)}</p>
+    <p class="question">${renderBiDiText(question.prompt)}</p>
     <div class="option-grid">
       ${question.options
-        .map((option) => `<button type="button" class="option-btn" data-option="${escapeHtml(option)}">${escapeHtml(option)}</button>`)
+        .map(
+          (option, optionIndex) =>
+            `<button type="button" class="option-btn" data-option-index="${optionIndex}">${renderBiDiText(option)}</button>`
+        )
         .join("")}
     </div>
     <p id="feedback" class="feedback"></p>
@@ -636,12 +651,13 @@ function renderQuestion() {
     button.addEventListener("click", () => {
       if (pendingAnswer) return;
 
-      const picked = button.dataset.option;
+      const picked = question.options[Number(button.dataset.optionIndex)];
       const correct = picked === question.answer;
 
       buttons.forEach((b) => {
         b.disabled = true;
-        if (b.dataset.option === question.answer) b.classList.add("correct");
+        const optionAtIndex = question.options[Number(b.dataset.optionIndex)];
+        if (optionAtIndex === question.answer) b.classList.add("correct");
       });
 
       if (!correct) button.classList.add("wrong");
@@ -651,10 +667,10 @@ function renderQuestion() {
       };
 
       if (correct) {
-        feedback.textContent = `נכון! ${question.explanation}`;
+        feedback.innerHTML = `נכון! ${renderBiDiText(question.explanation)}`;
         feedback.className = "feedback good";
       } else {
-        feedback.textContent = `לא נכון. התשובה הנכונה היא "${question.answer}". ${question.explanation}`;
+        feedback.innerHTML = `לא נכון. התשובה הנכונה היא ${renderBiDiText(question.answer)}. ${renderBiDiText(question.explanation)}`;
         feedback.className = "feedback bad";
       }
 

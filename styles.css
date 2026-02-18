@@ -165,6 +165,22 @@ h1 {
   font-weight: 500;
 }
 
+.ltr-text {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+  display: inline-block;
+  width: 100%;
+}
+
+.rtl-text {
+  direction: rtl;
+  unicode-bidi: isolate;
+  text-align: right;
+  display: inline-block;
+  width: 100%;
+}
+
 .option-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
