@@ -1,4 +1,6 @@
 const STORAGE_KEY = "englishQuestProgressV3";
+const GAME_SCORES_KEY = "englishQuestGameScoresV1";
+const GAME_ROUNDS = 8;
 
 function shuffleBySeed(items, seed) {
   const arr = [...items];
@@ -839,16 +841,29 @@ const progressFill = document.getElementById("progressFill");
 const completedCountLabel = document.getElementById("completedCountLabel");
 const remainingCountLabel = document.getElementById("remainingCountLabel");
 const stageMap = document.getElementById("stageMap");
+const gamesCatalog = document.getElementById("gamesCatalog");
+const gameArena = document.getElementById("gameArena");
 const shareHint = document.getElementById("shareHint");
 const stageContainer = document.getElementById("stageContainer");
 const resetBtn = document.getElementById("resetBtn");
 const shareBtn = document.getElementById("shareBtn");
 
+const learningGames = buildLearningGames();
+
 let state = loadState();
 let pendingAnswer = null;
+const gameState = {
+  activeGameId: learningGames[0]?.id || null,
+  round: 1,
+  score: 0,
+  challenge: null,
+  locked: false,
+  bestScores: loadGameScores(),
+};
 
 totalStagesLabel.textContent = String(stages.length);
 render();
+initGameCenter();
 
 resetBtn.addEventListener("click", () => {
   state = createInitialState();
@@ -879,6 +894,345 @@ shareBtn.addEventListener("click", async () => {
 
   openWhatsAppWithText(waText);
 });
+
+function buildLearningGames() {
+  const vocabPairs = [
+    ["כלב", "dog"], ["חתול", "cat"], ["מחברת", "notebook"], ["חלון", "window"], ["שולחן", "table"],
+    ["כיסא", "chair"], ["מים", "water"], ["תיק", "bag"], ["מורה", "teacher"], ["משפחה", "family"],
+  ];
+  const opposites = [["big", "small"], ["hot", "cold"], ["happy", "sad"], ["fast", "slow"], ["clean", "dirty"], ["long", "short"]];
+  const prepositions = [
+    ["The book is ___ the table.", "on", ["on", "under", "between", "behind"]],
+    ["The cat is ___ the chair.", "under", ["on", "under", "behind", "near"]],
+    ["The ball is ___ the box.", "in", ["in", "on", "under", "by"]],
+  ];
+  const questionsWords = [["___ is your name?", "What"], ["___ do you live?", "Where"], ["___ old are you?", "How"], ["___ is your teacher?", "Who"]];
+  const pastVerbs = [["go", "went"], ["eat", "ate"], ["write", "wrote"], ["see", "saw"], ["buy", "bought"], ["swim", "swam"]];
+  const contractions = [["I am", "I'm"], ["You are", "You're"], ["He is", "He's"], ["We are", "We're"], ["Do not", "Don't"], ["Can not", "Can't"]];
+  const spellingWords = [["becose", "because"], ["freind", "friend"], ["langauge", "language"], ["diffrent", "different"], ["scool", "school"], ["beatiful", "beautiful"]];
+  const comparatives = [["big", "bigger"], ["small", "smaller"], ["hot", "hotter"], ["easy", "easier"], ["fast", "faster"], ["young", "younger"]];
+
+  return [
+    {
+      id: "vocab-quick",
+      title: "מה התרגום?",
+      topic: "Vocabulary",
+      buildChallenge: () => {
+        const [he, answer] = pickRandom(vocabPairs);
+        return {
+          prompt: `בחר את התרגום באנגלית: "${he}"`,
+          answer,
+          options: createOptions(answer, vocabPairs.map((pair) => pair[1])),
+          explanation: `"${he}" באנגלית זה "${answer}".`,
+        };
+      },
+    },
+    {
+      id: "opposites-race",
+      title: "מילים הפוכות",
+      topic: "Vocabulary",
+      buildChallenge: () => {
+        const [word, answer] = pickRandom(opposites);
+        return {
+          prompt: `What is the opposite of "${word}"?`,
+          answer,
+          options: createOptions(answer, opposites.map((pair) => pair[1])),
+          explanation: `The opposite of "${word}" is "${answer}".`,
+        };
+      },
+    },
+    {
+      id: "prep-master",
+      title: "מילות יחס",
+      topic: "Grammar",
+      buildChallenge: () => {
+        const [prompt, answer, options] = pickRandom(prepositions);
+        return { prompt, answer, options: shuffleRandom(options), explanation: `The correct preposition is "${answer}".` };
+      },
+    },
+    {
+      id: "question-word",
+      title: "מילות שאלה",
+      topic: "Grammar",
+      buildChallenge: () => {
+        const [prompt, answer] = pickRandom(questionsWords);
+        return { prompt, answer, options: createOptions(answer, ["What", "Where", "When", "Who", "How", "Why"]), explanation: `The right question word is "${answer}".` };
+      },
+    },
+    {
+      id: "past-tense",
+      title: "עבר פשוט",
+      topic: "Tenses",
+      buildChallenge: () => {
+        const [base, answer] = pickRandom(pastVerbs);
+        return {
+          prompt: `Choose the past form of "${base}".`,
+          answer,
+          options: createOptions(answer, [...pastVerbs.map((pair) => pair[1]), `${base}ed`, `${base}s`]),
+          explanation: `Past form of "${base}" is "${answer}".`,
+        };
+      },
+    },
+    {
+      id: "contractions",
+      title: "קיצורי מילים",
+      topic: "Grammar",
+      buildChallenge: () => {
+        const [full, answer] = pickRandom(contractions);
+        return {
+          prompt: `Choose the contraction of "${full}".`,
+          answer,
+          options: createOptions(answer, [...contractions.map((pair) => pair[1]), full]),
+          explanation: `"${full}" becomes "${answer}".`,
+        };
+      },
+    },
+    {
+      id: "spelling-fix",
+      title: "תיקון כתיב",
+      topic: "Spelling",
+      buildChallenge: () => {
+        const [wrong, answer] = pickRandom(spellingWords);
+        return {
+          prompt: `Choose the correct spelling for: "${wrong}"`,
+          answer,
+          options: createOptions(answer, [...spellingWords.map((pair) => pair[1]), wrong]),
+          explanation: `Correct spelling: "${answer}".`,
+        };
+      },
+    },
+    {
+      id: "punctuation-check",
+      title: "פיסוק נכון",
+      topic: "Writing",
+      buildChallenge: () => {
+        const sets = [
+          ["Which sentence is correct?", "Where are you going?", ["Where are you going.", "where are you going?", "Where are you going?", "Where are you going!"]],
+          ["Which sentence is correct?", "I like apples, bananas, and grapes.", ["I like apples bananas and grapes.", "I like apples, bananas, and grapes.", "I like apples bananas, and grapes.", "I like apples bananas and, grapes."]],
+          ["Which sentence is correct?", "My name is Noa.", ["my name is noa.", "My name is Noa.", "My name is noa.", "my name is Noa."]],
+        ];
+        const [prompt, answer, options] = pickRandom(sets);
+        return { prompt, answer, options: shuffleRandom(options), explanation: `Correct sentence: "${answer}".` };
+      },
+    },
+    {
+      id: "can-cant",
+      title: "Can / Can't",
+      topic: "Grammar",
+      buildChallenge: () => {
+        const sets = [
+          ["Birds ___ fly.", "can", ["can", "can't", "should", "are"]],
+          ["Fish ___ walk on land.", "can't", ["can", "can't", "should", "are"]],
+          ["You ___ use your phone in class.", "can't", ["can", "can't", "am", "is"]],
+        ];
+        const [prompt, answer, options] = pickRandom(sets);
+        return { prompt, answer, options: shuffleRandom(options), explanation: `The right modal is "${answer}".` };
+      },
+    },
+    {
+      id: "should-shouldnt",
+      title: "Should / Shouldn't",
+      topic: "Grammar",
+      buildChallenge: () => {
+        const sets = [
+          ["You have a test tomorrow. You ___ study tonight.", "should", ["should", "shouldn't", "can", "can't"]],
+          ["If your friend is sad, you ___ laugh at him.", "shouldn't", ["should", "shouldn't", "can", "can't"]],
+          ["Before crossing the road, you ___ look both ways.", "should", ["should", "shouldn't", "is", "are"]],
+        ];
+        const [prompt, answer, options] = pickRandom(sets);
+        return { prompt, answer, options: shuffleRandom(options), explanation: `"${answer}" is correct in this situation.` };
+      },
+    },
+    {
+      id: "comparatives",
+      title: "השוואות",
+      topic: "Grammar",
+      buildChallenge: () => {
+        const [base, answer] = pickRandom(comparatives);
+        return {
+          prompt: `Choose the comparative form of "${base}".`,
+          answer,
+          options: createOptions(answer, comparatives.map((pair) => pair[1])),
+          explanation: `Comparative of "${base}" is "${answer}".`,
+        };
+      },
+    },
+    {
+      id: "reading-fast",
+      title: "קריאה מהירה",
+      topic: "Reading",
+      buildChallenge: () => {
+        const sets = [
+          ["Dana has a red bag. What color is Dana's bag?", "Red", ["Blue", "Red", "Green", "Black"]],
+          ["Tom has two cats and one dog. How many pets does he have?", "3", ["2", "3", "4", "5"]],
+          ["The class starts at 8:00. Is 7:30 before class?", "Yes", ["Yes", "No", "Maybe", "Unknown"]],
+        ];
+        const [prompt, answer, options] = pickRandom(sets);
+        return { prompt, answer, options: shuffleRandom(options), explanation: `Correct answer: ${answer}.` };
+      },
+    },
+  ];
+}
+
+function initGameCenter() {
+  if (!gamesCatalog || !gameArena || !learningGames.length) return;
+  renderGamesCatalog();
+  startGame(learningGames[0].id);
+}
+
+function renderGamesCatalog() {
+  gamesCatalog.innerHTML = learningGames
+    .map((game) => {
+      const activeClass = game.id === gameState.activeGameId ? "active" : "";
+      const best = gameState.bestScores[game.id] || 0;
+      return `<button type="button" class="game-card-btn ${activeClass}" data-game-id="${game.id}"><span class="game-card-title">${escapeHtml(game.title)}</span><span class="game-card-topic">${escapeHtml(game.topic)} | שיא: ${best}/${GAME_ROUNDS}</span></button>`;
+    })
+    .join("");
+
+  gamesCatalog.querySelectorAll(".game-card-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const gameId = button.dataset.gameId;
+      if (!gameId) return;
+      startGame(gameId);
+    });
+  });
+}
+
+function startGame(gameId) {
+  const game = learningGames.find((item) => item.id === gameId);
+  if (!game) return;
+
+  gameState.activeGameId = gameId;
+  gameState.round = 1;
+  gameState.score = 0;
+  gameState.challenge = game.buildChallenge();
+  gameState.locked = false;
+
+  renderGamesCatalog();
+  renderGameRound();
+}
+
+function renderGameRound() {
+  const game = learningGames.find((item) => item.id === gameState.activeGameId);
+  if (!game || !gameState.challenge) return;
+
+  const challenge = gameState.challenge;
+  const best = gameState.bestScores[game.id] || 0;
+  gameArena.innerHTML = `
+    <div class="game-top-row">
+      <span>${escapeHtml(game.title)}</span>
+      <span>סיבוב: ${gameState.round}/${GAME_ROUNDS}</span>
+      <span>ניקוד: ${gameState.score}</span>
+      <span>שיא: ${best}</span>
+    </div>
+    <p class="game-question">${renderBiDiText(challenge.prompt)}</p>
+    <div class="game-options">
+      ${challenge.options
+        .map((option, index) => `<button type="button" class="game-option-btn" data-option-index="${index}">${renderBiDiText(option)}</button>`)
+        .join("")}
+    </div>
+    <p id="gameFeedback" class="game-feedback"></p>
+  `;
+
+  const buttons = gameArena.querySelectorAll(".game-option-btn");
+  const feedback = document.getElementById("gameFeedback");
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (gameState.locked) return;
+      gameState.locked = true;
+
+      const picked = challenge.options[Number(button.dataset.optionIndex)];
+      const correct = picked === challenge.answer;
+
+      buttons.forEach((btn) => {
+        btn.disabled = true;
+        const option = challenge.options[Number(btn.dataset.optionIndex)];
+        if (option === challenge.answer) btn.classList.add("correct");
+      });
+      if (!correct) button.classList.add("wrong");
+
+      if (correct) {
+        gameState.score += 1;
+        feedback.innerHTML = `נכון! ${renderBiDiText(challenge.explanation)}`;
+      } else {
+        feedback.innerHTML = `לא נכון. התשובה היא ${renderBiDiText(challenge.answer)}. ${renderBiDiText(challenge.explanation)}`;
+      }
+
+      const nextBtn = document.createElement("button");
+      nextBtn.type = "button";
+      nextBtn.className = "game-next-btn";
+      nextBtn.textContent = gameState.round === GAME_ROUNDS ? "סיום משחק" : "לסיבוב הבא";
+      nextBtn.addEventListener("click", () => {
+        if (gameState.round === GAME_ROUNDS) {
+          finishGame();
+          return;
+        }
+        gameState.round += 1;
+        gameState.challenge = game.buildChallenge();
+        gameState.locked = false;
+        renderGameRound();
+      });
+      gameArena.append(nextBtn);
+    });
+  });
+}
+
+function finishGame() {
+  const game = learningGames.find((item) => item.id === gameState.activeGameId);
+  if (!game) return;
+
+  const currentBest = gameState.bestScores[game.id] || 0;
+  if (gameState.score > currentBest) {
+    gameState.bestScores[game.id] = gameState.score;
+    persistGameScores(gameState.bestScores);
+  }
+
+  renderGamesCatalog();
+  gameArena.innerHTML = `
+    <div class="stage-complete">
+      <div class="success-mark">🎮</div>
+      <h2 class="stage-title">סיימת את המשחק: ${escapeHtml(game.title)}</h2>
+      <p class="question">צברת <strong>${gameState.score}</strong> מתוך <strong>${GAME_ROUNDS}</strong></p>
+      <button type="button" class="game-next-btn" id="replayGameBtn">שחק שוב</button>
+    </div>
+  `;
+  document.getElementById("replayGameBtn").addEventListener("click", () => startGame(game.id));
+}
+
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function shuffleRandom(items) {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function createOptions(answer, pool) {
+  const cleanPool = [...new Set(pool.filter((item) => item !== answer))];
+  const distractors = shuffleRandom(cleanPool).slice(0, 3);
+  return shuffleRandom([answer, ...distractors]);
+}
+
+function loadGameScores() {
+  try {
+    const raw = localStorage.getItem(GAME_SCORES_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
+function persistGameScores(scores) {
+  localStorage.setItem(GAME_SCORES_KEY, JSON.stringify(scores));
+}
 
 function createInitialState() {
   return {

@@ -160,6 +160,131 @@ h1 {
   animation: reveal 350ms ease;
 }
 
+.games-card {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(35, 57, 91, 0.16);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 10px 24px rgba(35, 57, 91, 0.1);
+}
+
+.games-head {
+  margin-bottom: 12px;
+}
+
+.games-title {
+  margin: 0;
+  font-family: "Baloo 2", cursive;
+  font-size: 1.7rem;
+}
+
+.games-subtitle {
+  margin: 4px 0 0;
+  font-weight: 500;
+}
+
+.games-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.game-card-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: right;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(120deg, #eef7ff, #e8fff2);
+  color: #234;
+}
+
+.game-card-btn.active {
+  outline: 2px solid #2b6cb0;
+  background: linear-gradient(120deg, #d9ecff, #d9ffe9);
+}
+
+.game-card-title {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.game-card-topic {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.game-arena {
+  margin-top: 14px;
+  border: 1px solid rgba(35, 57, 91, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fcfeff;
+  min-height: 210px;
+}
+
+.game-top-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+
+.game-question {
+  margin: 10px 0;
+  font-size: 1.08rem;
+}
+
+.game-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.game-option-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: #edf4ff;
+  color: #1f3b5f;
+}
+
+.game-option-btn.correct {
+  background: #d9fbe9;
+  color: #1f9d63;
+}
+
+.game-option-btn.wrong {
+  background: #ffe2e2;
+  color: #b33d3d;
+}
+
+.game-feedback {
+  min-height: 24px;
+  margin: 10px 0;
+  font-weight: 700;
+}
+
+.game-next-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(120deg, #ffd27a, #ffb86b);
+  color: #422d12;
+}
+
 .content-grid {
   margin-top: 14px;
   display: grid;
@@ -390,5 +515,9 @@ h1 {
   .stage-card,
   .sidebar-card {
     min-height: 340px;
+  }
+
+  .games-catalog {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
