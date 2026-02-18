@@ -72,6 +72,12 @@ body {
   align-items: flex-start;
 }
 
+.top-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .tag {
   font-size: 0.95rem;
   margin: 0;
@@ -97,6 +103,17 @@ h1 {
   font-family: inherit;
   font-weight: 700;
   color: #3d5a80;
+  cursor: pointer;
+}
+
+.share-btn {
+  border: none;
+  background: linear-gradient(120deg, #40c351, #22a14b);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-weight: 700;
+  color: #ffffff;
   cursor: pointer;
 }
 
@@ -239,6 +256,10 @@ h1 {
   }
 
   .ghost-btn {
+    width: 100%;
+  }
+
+  .share-btn {
     width: 100%;
   }
 

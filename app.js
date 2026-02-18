@@ -28,21 +28,77 @@ const stages = [
     success: "אלוף! אומרים: I go to school.",
     fail: "התשובה הנכונה היא go.",
   },
+  {
+    title: "שלב 4: ימים בשבוע",
+    question: "What day comes after Monday?",
+    options: ["Sunday", "Tuesday", "Friday", "Thursday"],
+    answer: "Tuesday",
+    points: 20,
+    success: "מעולה! Monday ואז Tuesday.",
+    fail: "התשובה הנכונה: Tuesday.",
+  },
+  {
+    title: "שלב 5: משפחה",
+    question: "My mother's son is my ___.",
+    options: ["Brother", "Cousin", "Uncle", "Grandpa"],
+    answer: "Brother",
+    points: 25,
+    success: "כל הכבוד! Brother זו התשובה הנכונה.",
+    fail: "התשובה הנכונה: Brother.",
+  },
+  {
+    title: "שלב 6: אוצר מילים",
+    question: "Choose the correct word: I drink water from a ___.",
+    options: ["Chair", "Cup", "Window", "Bag"],
+    answer: "Cup",
+    points: 25,
+    success: "נכון! שותים מים מכוס - Cup.",
+    fail: "התשובה הנכונה: Cup.",
+  },
+  {
+    title: "שלב 7: זמן הווה",
+    question: "She ___ soccer every Friday.",
+    options: ["play", "plays", "played", "playing"],
+    answer: "plays",
+    points: 30,
+    success: "אלופה! עם She משתמשים ב-plays.",
+    fail: "התשובה הנכונה: plays.",
+  },
+  {
+    title: "שלב 8: הבנת משפט",
+    question: "Which sentence is correct?",
+    options: ["He have a dog.", "He has a dog.", "He having a dog.", "He haves a dog."],
+    answer: "He has a dog.",
+    points: 30,
+    success: "מצוין! He has a dog זו צורה נכונה.",
+    fail: "התשובה הנכונה: He has a dog.",
+  },
 ];
 
 const stageLabel = document.getElementById("stageLabel");
+const totalStagesLabel = document.getElementById("totalStagesLabel");
 const scoreLabel = document.getElementById("scoreLabel");
 const progressFill = document.getElementById("progressFill");
 const stageContainer = document.getElementById("stageContainer");
 const resetBtn = document.getElementById("resetBtn");
+const shareBtn = document.getElementById("shareBtn");
 
 let state = loadState();
+totalStagesLabel.textContent = String(stages.length);
 render();
 
 resetBtn.addEventListener("click", () => {
   state = { index: 0, score: 0, finished: false };
   persistState();
   render();
+});
+
+shareBtn.addEventListener("click", () => {
+  const currentStep = Math.min(state.index + 1, stages.length);
+  const stageText = state.finished ? "סיימתי את כל השלבים" : `הגעתי לשלב ${currentStep} מתוך ${stages.length}`;
+  const message = `אני מתרגל/ת באנגלית ב-English Quest! ${stageText} וצברתי ${state.score} נקודות.`;
+  const shareUrl = `https://wa.me/?text=${encodeURIComponent(`${message} ${window.location.href}`)}`;
+  window.open(shareUrl, "_blank", "noopener");
 });
 
 function loadState() {

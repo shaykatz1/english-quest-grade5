@@ -20,12 +20,15 @@
           <h1>English Quest</h1>
           <p class="subtitle">מסע כיפי עם שלבים, ניקוד והתקדמות אישית</p>
         </div>
-        <button id="resetBtn" class="ghost-btn" type="button">איפוס התקדמות</button>
+        <div class="top-actions">
+          <button id="shareBtn" class="share-btn" type="button">שיתוף בוואטסאפ</button>
+          <button id="resetBtn" class="ghost-btn" type="button">איפוס התקדמות</button>
+        </div>
       </header>
 
       <section class="progress-card">
         <div class="progress-text-row">
-          <p>שלב: <span id="stageLabel">1</span>/3</p>
+          <p>שלב: <span id="stageLabel">1</span>/<span id="totalStagesLabel">3</span></p>
           <p>נקודות: <span id="scoreLabel">0</span></p>
         </div>
         <div class="progress-track" aria-label="פס התקדמות">
