@@ -1324,20 +1324,24 @@ function renderQuestion() {
   pendingAnswer = null;
 
   stageContainer.innerHTML = `
-    <h2 class="stage-title">${stage.title}</h2>
-    <p class="question">${renderBiDiText(question.prompt)}</p>
-    <div class="option-grid">
+    <div class="game-top-row">
+      <span>${stage.title}</span>
+      <span>שאלה: ${questionIndex + 1}/${stage.questions.length}</span>
+      <span>נקודות לשאלה: ${question.points}</span>
+    </div>
+    <p class="game-question">${renderBiDiText(question.prompt)}</p>
+    <div class="game-options">
       ${question.options
         .map(
           (option, optionIndex) =>
-            `<button type="button" class="option-btn" data-option-index="${optionIndex}">${renderBiDiText(option)}</button>`
+            `<button type="button" class="game-option-btn" data-option-index="${optionIndex}">${renderBiDiText(option)}</button>`
         )
         .join("")}
     </div>
-    <p id="feedback" class="feedback"></p>
+    <p id="feedback" class="game-feedback"></p>
   `;
 
-  const buttons = stageContainer.querySelectorAll(".option-btn");
+  const buttons = stageContainer.querySelectorAll(".game-option-btn");
   const feedback = document.getElementById("feedback");
 
   buttons.forEach((button) => {
@@ -1361,11 +1365,11 @@ function renderQuestion() {
 
       if (correct) {
         feedback.innerHTML = `כל הכבוד! ${renderBiDiText(question.explanation)}`;
-        feedback.className = "feedback good";
+        feedback.className = "game-feedback feedback good";
         setTimeout(() => advanceStageQuestion(), 800);
       } else {
         feedback.innerHTML = `לא נכון. התשובה הנכונה היא ${renderBiDiText(question.answer)}. ${renderBiDiText(question.explanation)}`;
-        feedback.className = "feedback bad";
+        feedback.className = "game-feedback feedback bad";
         addNextButton();
       }
     });
@@ -1401,11 +1405,11 @@ function advanceStageQuestion() {
 }
 
 function addNextButton() {
-  if (stageContainer.querySelector(".next-btn")) return;
+  if (stageContainer.querySelector(".stage-next-btn")) return;
 
   const nextBtn = document.createElement("button");
   nextBtn.type = "button";
-  nextBtn.className = "next-btn";
+  nextBtn.className = "game-next-btn stage-next-btn";
   nextBtn.textContent = "הבנתי, לשאלה הבאה";
 
   nextBtn.addEventListener("click", () => {
@@ -1424,7 +1428,7 @@ function renderStageComplete() {
       <div class="success-mark">✓</div>
       <h2 class="stage-title">סיימת את שלב ${completedStageNumber} בהצלחה!</h2>
       <p class="question">ניקוד נוכחי: <strong>${state.score}</strong> נקודות</p>
-      <button type="button" class="next-btn" id="continueStageBtn">מעבר לשלב לא הושלם הבא</button>
+      <button type="button" class="game-next-btn" id="continueStageBtn">מעבר לשלב לא הושלם הבא</button>
     </div>
   `;
 
