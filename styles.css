@@ -124,6 +124,7 @@ h1 {
 .progress-text-row {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
   font-weight: 700;
 }
@@ -219,6 +220,27 @@ h1 {
 .next-btn {
   background: linear-gradient(120deg, var(--peach), #ffdf75);
   color: #35210d;
+}
+
+.success-mark {
+  width: 90px;
+  height: 90px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  margin: 10px auto 14px;
+  font-size: 2.5rem;
+  color: white;
+  background: linear-gradient(120deg, #23b26d, #7ae582);
+  box-shadow: 0 10px 20px rgba(35, 178, 109, 0.25);
+}
+
+.stage-complete {
+  text-align: center;
+}
+
+.stage-complete .next-btn {
+  margin-top: 10px;
 }
 
 .footer-note {
